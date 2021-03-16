@@ -1,0 +1,447 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Jade Delight</title>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<style type="text/css">
+	#errorBox {
+		height: 30vw;
+		background-color: #ffe9cc;
+
+	}
+
+	#receipt {
+		height: 30vw;
+		background-color: #d9e4ff;
+	}
+
+	.displayBox {
+		margin: 2%;
+		flex: 1;
+	}
+
+	#container {
+		display: flex;
+	}
+
+	.errors {
+		padding-left: 5%;
+		font-size: 1.3vw;
+
+	}
+
+	.receiptText {
+		padding-left: 5%;
+		font-size: 1.3vw;
+	}
+
+	h2 {
+		text-align: center;
+		padding: 1.5vw;
+	}
+</style>
+
+</head>
+<body>
+
+<script language="javascript">
+
+function MenuItem(name, cost)
+{
+	this.name = name;
+	this.cost=cost;
+}
+
+menuItems = new Array(
+	new MenuItem("Chicken Chop Suey", 4.5),
+	new MenuItem("Sweet and Sour Pork", 6.25),
+	new MenuItem("Shrimp Lo Mein", 5.25),
+	new MenuItem("Moo Shi Chicken", 6.5),
+	new MenuItem("Fried Rice", 2.35)
+);
+
+function makeSelect(name, minRange, maxRange)
+{
+	var t= "";
+	t = "<select name='" + name + "' size='1'>";
+	for (j=minRange; j<=maxRange; j++)
+	   t += "<option>" + j + "</option>";
+	t+= "</select>"; 
+	return t;
+}
+</script>
+
+
+
+<h1>Jade Delight</h1>
+<form>
+
+<p>First Name: <input type="text"  name='fname' /></p>
+<p>Last Name*:  <input type="text"  name='lname' /></p>
+<p class="onlyIfDelivery">Street: <input type="text"  name='street' /></p>
+<p class="onlyIfDelivery">City: <input type="text"  name='city' /></p>
+<p>Phone*: <input type="text"  name='phone' /></p>
+<p> 
+	<input type="radio"  name="p_or_d" value = "pickup" id="pickup" onclick="checkIfDelivery()"/>Pickup  
+	<input type="radio"  name='p_or_d' value = 'delivery' id="delivery" checked="checked" onclick="checkIfDelivery()"/>Delivery
+</p>
+<table border="0" cellpadding="3">
+  <tr>
+    <th>Select Item</th>
+    <th>Item Name</th>
+    <th>Cost Each</th>
+    <th>Total Cost</th>
+  </tr>
+
+
+<script language="javascript">
+
+  var s = "";
+  for (i=0; i< menuItems.length; i++)
+  {
+	  s += "<tr><td>";
+	  s += makeSelect("quan" + i, 0, 10);
+	  s += "</td><td>" + menuItems[i].name + "</td>";
+	  s += "<td> $ " + menuItems[i].cost.toFixed(2) + "</td>";
+	  s += "<td>$<input type='text' name='cost'/></td></tr>";
+  }
+  document.writeln(s);
+</script>
+
+
+</table>
+<p>Subtotal: 
+   $<input type="text"  name='subtotal' id="subtotal" />
+</p>
+<p>Mass tax 6.25%:
+  $ <input type="text"  name='tax' id="tax" />
+</p>
+<p>Total: $ <input type="text"  name='total' id="total" />
+</p>
+
+<input type = "button" value = "Submit Order" id="button" onclick="checkValid()"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script language="javascript">
+
+	// store the table select boxes and the table cost boxes into arrays to access them later on:
+	var tableSelectBoxes = document.getElementsByTagName("select");
+	var tableCostBoxes = document.getElementsByName("cost");
+
+	// call the updateCosts() function whenever a select box value is changed by adding an onchange attribute:
+	for (i = 0; i < tableSelectBoxes.length; i++) {
+		tableSelectBoxes[i].setAttribute("onchange", "updateCosts()");
+	}
+
+
+	// updates the costs of the ordered menu items:
+	function updateCosts() {
+
+		// multiply the cost of an individual item by the amount of ordered items for all menu items:
+		for (i = 0; i < tableSelectBoxes.length; i++) {
+			var amount = tableSelectBoxes[i].value;
+			var totalcost = menuItems[i].cost.toFixed(2) * amount;
+			tableCostBoxes[i].value = totalcost.toFixed(2);
+		}
+
+		// call the updateTotalCosts() function to update the subtotal, tax, and total based on ordered items:
+		updateTotalCosts();
+	}
+
+
+	// update the subtotal, tax, and total based on the ordered items:
+	function updateTotalCosts() {
+		var subtotal = 0
+
+		// add all the cost box values to get the subtotal:
+		for (i = 0; i < menuItems.length; i++) {
+			subtotal += parseFloat(tableCostBoxes[i].value);
+		}
+
+		// display the subtotal:
+		document.getElementById("subtotal").value = subtotal.toFixed(2);
+
+		let tax = 6.25;
+
+		// diaplay the tax amount:
+		document.getElementById("tax").value = parseFloat(subtotal / 100 * tax).toFixed(2);
+
+		// display the total: 
+		document.getElementById("total").value = parseFloat(subtotal + (subtotal / 100 * tax)).toFixed(2);
+	}
+
+
+	// only display the street and city form boxes if the order is delivery:
+	function checkIfDelivery () {
+
+		// using JQuery: 
+		$(document).ready(function() {
+
+			// hide the street and city boxes if the user checks pickup:
+			if (document.getElementById("pickup").checked) {
+				$(".onlyIfDelivery").hide();
+			}
+
+			// show the street and city boxes if the user checks delivery:
+			else {
+				$(".onlyIfDelivery").show();
+			}
+		})
+	}
+
+
+
+
+
+
+	// Validation function which is called when the submit button is pressed.
+	// This function hides all the innerHTML in the error and receipt boxes,
+	// calls all the sub-verification functions, and calls the displayReceipt
+	// function if no errors are found.
+	function checkValid() {
+
+		// hide all the errors from previous submissions:
+		document.getElementById("lastNameError").innerHTML = "";
+		document.getElementById("phoneError").innerHTML = "";
+		document.getElementById("streetError").innerHTML = "";
+		document.getElementById("cityError").innerHTML = "";
+		document.getElementById("orderError").innerHTML = "";
+
+		// hide receipts from previous orders:
+		document.getElementById("thankYou").innerHTML = "";
+		document.getElementById("yourOrder").innerHTML = "";
+		document.getElementById("deliveryTime").innerHTML = "";
+		document.getElementById("pickupTime").innerHTML = "";
+		document.getElementById("orderTotal").innerHTML = "";
+
+		// create all the boolean variables which will be used to check the validity of inputs:
+		var validLastName = validPhone = validStreet = validCity = validOrder = true;
+
+		// call the checkLastName() function to check if the user gave a last name:
+		validLastName = checkLastName();
+
+		// call the checkPhone() function to check if the user gave a valid phone number:
+		validPhone = checkPhone();
+
+		// find the current time:
+		var today = new Date();
+		var currentHour = today.getHours()
+		var currentMinute = today.getMinutes();
+
+		// check if the order is pickup or delivery:
+		var isPickup = document.getElementById("pickup").checked;
+
+		// call the checkTime() function to find the pickup or delivery time:
+		var p_or_dTime = checkTime(isPickup, currentHour, currentMinute);
+
+		// call the checkStreet() and checkCity() functions if the order is delivery to
+		// make sure the user gave a city and a street:
+		if (!isPickup) {
+			validStreet = checkStreet();
+			validCity = checkCity();
+		}
+
+		// call the checkOrder() function to make sure the user ordered at least 1 item:
+		validOrder = checkOrder();
+
+		// if all requirements are filled, let the user know there were no errors and call the
+		// displayReceipt() function to display all the order information:
+		if (validLastName == true && validPhone == true && validStreet == true && validCity == true && validOrder == true) {
+			document.getElementById("lastNameError").innerHTML = "No Errors";
+			displayReceipt(p_or_dTime);
+		}
+	}
+
+	// check if the user gave their last name:
+	function checkLastName() {
+		var lastName = document.getElementsByName("lname")[0].value;
+		if (lastName == "") {
+			document.getElementById("lastNameError").innerHTML = "Please enter your last name";
+			return false;
+		}
+		return true;
+	}
+
+	// check if the user gave a valid phone number:
+	function checkPhone() {
+		var phoneNumber = document.getElementsByName("phone")[0].value;
+
+		// I got this phone number validation technique from: 
+		// https://www.w3resource.com/javascript/form/phone-no-validation.php
+		let validPhone = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
+
+		if (phoneNumber == "" || !phoneNumber.match(validPhone)) {
+			document.getElementById("phoneError").innerHTML = "Please enter a valid phone number";
+			return false;
+		}
+		return true;
+	}
+
+	// finds the exact time when the user should pickup or when the delivery will arrive.
+	// this funtion takes in the current hour and minute, and whether or not the order is a pickup:
+	function checkTime(isPickup, hour, minute) {
+
+		// 15 minutes from now if pickup:
+		if (isPickup) {
+			minute += 15;
+		}
+
+		// 30 minutes from now if delivery:
+		else {
+			minute += 30;
+		}
+
+		// makes sure the delivery time is displayed correctly:
+		if (minute >= 60) {
+			hour++;
+			minute -= 60;
+		}
+		if (hour < 10) {
+			hour = "0" + hour;
+		}
+		if (minute < 10) {
+			minute = "0" + minute;
+		}
+
+		return (hour + ":" + minute);
+	}
+
+	// checks if the user gave a street name if delivery:
+	function checkStreet() {
+		var streetName = document.getElementsByName("street")[0].value;
+		if (streetName == "") {
+			document.getElementById("streetError").innerHTML = "Please enter your street";
+			return false;
+		}
+		return true;
+	}
+
+	// checks if the user gave a city if delivery:
+	function checkCity() {
+		var cityName = document.getElementsByName("city")[0].value;
+		if (cityName == "") {
+			document.getElementById("cityError").innerHTML = "Please enter your city";
+			return false;
+		}
+		return true;
+	}
+
+	// checks if the user ordered at least 1 item:
+	function checkOrder() {
+		var oneOrder = false;
+
+		// goes through the table select boxes until one of the amounts in greater than 0:
+		for (i = 0; i < tableSelectBoxes.length; i++) {
+			var amount = tableSelectBoxes[i].value;
+			if (amount != 0) {
+				oneOrder = true;
+				break;
+			}
+		}
+
+		// If no amounts were greater than 0, the error is displayed:
+		if (oneOrder == false) {
+			document.getElementById("orderError").innerHTML = "Please order at least one item";
+			return false;
+		}
+		return true;
+	}
+
+	// Displays all the order information if no errors are found:
+	function displayReceipt(p_or_dTime) {
+		document.getElementById("thankYou").innerHTML = "Thank you for ordering from Jade's Delight!";
+
+		// calls the getOrder() function to get all the ordered items:
+		var clientOrder = getOrder();
+		document.getElementById("yourOrder").innerHTML = "Your order: <br/>" + clientOrder;
+
+		// displays the pickup or delivery times:
+		var isPickup = document.getElementById("pickup").checked;
+		if (isPickup) {
+			document.getElementById("pickupTime").innerHTML = "Your pickup time: " + p_or_dTime + "<br/>"
+		}
+		else {
+			document.getElementById("deliveryTime").innerHTML = "Your delivery time: " + p_or_dTime + "<br/>"
+		}
+
+		// gets the total amount from the table:
+		document.getElementById("orderTotal").innerHTML = "Your total: $" + document.getElementById("total").value;
+	}
+
+	// adds all the ordered menu items to a string and return it:
+	function getOrder() {
+		var clientOrder = "";
+
+		// goes through the menu items and checks how many of them were ordered.
+		// Only adds the elements if more than 1 was ordered:
+		for (i = 0; i < menuItems.length; i++) {
+			if (tableSelectBoxes[i].value != 0) {
+				clientOrder += tableSelectBoxes[i].value;
+				clientOrder += " ";
+				clientOrder += menuItems[i].name;
+				clientOrder += "<br/>"
+			}
+		}
+		return clientOrder;
+	}
+
+
+</script>
+
+<!-- Formatting the errors and receipt boxes: -->
+
+<div id="container">
+	<div class="displayBox" id="errorBox">
+		<h2> Errors: </h2>
+		<p class="errors" id="lastNameError"></p>
+		<p class="errors" id="phoneError"></p>
+		<p class="errors" id="streetError"></p>
+		<p class="errors" id="cityError"></p>
+		<p class="errors" id="orderError"></p>
+	</div>
+
+	<div class="displayBox" id="receipt">
+		<h2> Order Confirmation: </h2>
+		<p class="receiptText" id="thankYou"></p>
+		<p class="receiptText" id="yourOrder"></p>
+		<p class="receiptText" id="deliveryTime"></p>
+		<p class="receiptText" id="pickupTime"></p>
+		<p class="receiptText" id="orderTotal"></p>
+	</div>
+</div>
+
+
+
+
+</form>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
